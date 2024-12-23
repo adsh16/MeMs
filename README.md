@@ -3,6 +3,48 @@
 
 MeMs is a custom memory management system implemented in C, utilizing `mmap` and `munmap` system calls for efficient memory allocation and deallocation. The system employs a 2-D free list data structure to track memory usage, manage virtual and physical address mappings, and handle memory fragmentation.
 
+
+## Data Structure Used
+
+![image](https://github.com/user-attachments/assets/cd129633-197f-4097-bf72-40f21b232c57)
+
+### Overview
+
+MeMs employs a 2-D doubly linked list (free list) data structure to manage memory allocation and deallocation efficiently. The structure organizes memory segments into nodes, which are categorized as either:
+- **PROCESS**: Representing allocated memory segments.
+- **HOLE**: Representing free memory segments available for allocation.
+
+### Search Mechanism for Allocation
+
+- **Step 1: Traverse the Free List**  
+  The free list is traversed to locate a HOLE node that can satisfy the requested memory size.
+  
+- **Step 2: Splitting Nodes**  
+  - If a HOLE is larger than the requested size, it is split into two nodes:
+    1. One node allocated as a PROCESS segment.
+    2. The remaining portion remains as a HOLE.
+  - The free list pointers are updated accordingly.
+
+- **Step 3: Expanding Memory**  
+  If no suitable HOLE is found, `mmap` is used to allocate additional memory. The new memory segment is added to the list as a PROCESS node.
+
+### Search Mechanism for Deallocation
+
+- **Step 1: Locate the Segment**  
+  The free list is traversed to find the node corresponding to the given MeMS virtual address.
+
+- **Step 2: Mark as HOLE**  
+  The node is marked as a HOLE, making it available for future allocations.
+
+- **Step 3: Coalesce Adjacent HOLEs**  
+  If adjacent nodes are also HOLEs, they are merged into a single node to reduce fragmentation and optimize the free list structure.
+
+### Advantages of the Free List Structure
+
+- **Efficient Allocation**: Reuses memory segments effectively to minimize overhead.  
+- **Dynamic Memory Management**: Handles varying allocation sizes with minimal fragmentation.  
+- **Fast Deallocation**: Updates the structure and coalesces nodes in constant or linear time, depending on the node's position.
+
 ## Key Features
 
 - **Memory Allocation (`mems_malloc`)**: Allocates memory of the requested size by reusing free segments or expanding memory via `mmap` if necessary. Returns a MeMS virtual address.
